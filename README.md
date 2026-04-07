@@ -1,36 +1,92 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# 🗓️ Wall Calendar — Interactive React/Next.js Component
 
-## Getting Started
+A polished, interactive wall calendar component built with **Next.js 15 (App Router)** and **Tailwind CSS v4**, inspired by a physical wall calendar aesthetic.
 
-First, run the development server:
+---
+
+## ✨ Features
+
+### Core Requirements
+- **Wall Calendar Aesthetic** — Spiral binding, paper texture, hero image panel with seasonal illustrations
+- **Day Range Selector** — Click start date → click end date; hover preview shows range; clear visual states for start, end, and in-between days
+- **Integrated Notes** — Two-tab notes panel: *Month Notes* (per month) and *Range Notes* (per selected range), auto-saved to `localStorage`
+- **Fully Responsive** — Side-by-side desktop layout collapses to stacked vertical on mobile
+
+### Creative Extras
+- **Month Themes** — Each month has a unique color scheme (bg, accent, text) that changes the entire UI
+- **Seasonal Hero Illustrations** — Animated floating emoji scenes for Winter/Spring/Summer/Autumn
+- **Page Flip Animation** — Smooth CSS animation when navigating months
+- **Holiday Markers** — US holidays shown as emoji icons on calendar days with tooltip on hover
+- **Hover Range Preview** — Before completing a range, hovering shows a live preview of what will be selected
+- **Today Indicator** — Outlined circle + dot marker for today's date
+- **Spiral Binding** — Decorative top binding that matches the month's theme color
+- **Day Count Display** — Shows number of days in selected range in the hero panel
+
+---
+
+## 🚀 Getting Started
 
 ```bash
+# Install dependencies
+npm install
+
+# Run development server
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+```bash
+# Production build
+npm run build
+npm start
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+---
 
-## Learn More
+## 🏗️ Architecture
 
-To learn more about Next.js, take a look at the following resources:
+```
+app/
+├── components/
+│   ├── WallCalendar.js    # Root component — state management, theme, navigation
+│   ├── MonthHero.js       # Left panel — seasonal scene + range info
+│   ├── CalendarHeader.js  # Month/year title + prev/next/today buttons
+│   ├── CalendarGrid.js    # 7-column day grid with range highlighting
+│   └── NotesPanel.js      # Tabbed notes (month + range), localStorage persistence
+├── globals.css            # Tailwind v4 + custom animations/utilities
+├── layout.js              # Root layout
+└── page.js                # Entry point
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### State Management
+All state lives in `WallCalendar.js` (no external state library needed):
+- `currentDate` — which month/year is displayed
+- `rangeStart` / `rangeEnd` — selected date range
+- `hoveredDate` — for live range preview
+- `notes` — `{ [key]: string }` map, persisted to `localStorage`
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### Design Decisions
+- **No external dependencies** beyond Next.js + Tailwind — keeps bundle minimal
+- **`localStorage`** for persistence — no backend needed per requirements
+- **CSS-only animations** — page flip and float effects via `@keyframes`
+- **Tailwind v4** inline styles for dynamic theme colors (can't use arbitrary values for runtime-computed colors)
 
-## Deploy on Vercel
+---
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## 📱 Responsive Behavior
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+| Breakpoint | Layout |
+|---|---|
+| Mobile (`< lg`) | Stacked: Hero on top, calendar below |
+| Desktop (`≥ lg`) | Side-by-side: Hero left (288px), calendar right |
+
+---
+
+## 🎨 Month Themes
+
+Each month has a unique `{ bg, accent, text, season, emoji }` theme that drives:
+- Header background color
+- Accent color for weekends, today indicator, range highlights
+- Hero scene gradient and floating elements
+- Bottom decorative strip gradient
