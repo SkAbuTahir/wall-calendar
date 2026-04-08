@@ -214,30 +214,6 @@ export default function CalendarGrid({
       {/* Day cells */}
       <div className="grid grid-cols-7" role="grid" aria-label={`${month + 1} ${year} calendar`}>
         {cells.map((cell, idx) => {
-          // ── Overflow cells (prev / next month) ───────────────────────
-          if (cell.type !== 'current') {
-            return (
-              <div
-                key={`ov-${idx}`}
-                role="gridcell"
-                aria-hidden
-                className="flex items-center justify-center"
-                style={{ height: '40px' }}
-              >
-                <span style={{
-                  fontSize: '12px',
-                  fontWeight: '400',
-                  color: '#9ca3af',
-                  opacity: 0.45,
-                  userSelect: 'none',
-                }}>
-                  {cell.date.getDate()}
-                </span>
-              </div>
-            );
-          }
-
-          // ── Current month cells ───────────────────────────────────────
           const date    = cell.date;
           const day     = date.getDate();
           const dow     = date.getDay();
@@ -251,37 +227,44 @@ export default function CalendarGrid({
           const isSingle   = isStart && isEnd;
           const isHov      = isSameDay(date, hoveredDate);
           const isFocused  = focusedIdx === idx;
-          const holiday    = getHoliday(day);
+          const holiday    = cell.type === 'current' ? getHoliday(day) : null;
           const past       = isPast(date);
           const isStartAwaiting = isStart && awaitingEnd;
+          const isOverflow = cell.type !== 'current';
 
           const showStrip = inRange || (isStart && selE && !isSingle) || (isEnd && !isSingle);
           const stripL    = isStart && !isSingle ? '50%' : '0';
           const stripR    = isEnd   && !isSingle ? '50%' : '0';
 
           let bg     = 'transparent';
-          let color  = isSun ? '#3b82f6' : isSat ? '#6366f1' : past ? '#c4c9d4' : '#374151';
+          let color  = isOverflow ? '#9ca3af' : isSun ? '#3b82f6' : isSat ? '#6366f1' : past ? '#c4c9d4' : '#374151';
           let border = 'none';
           let weight = '400';
           let shadow = 'none';
+          let opacity = isOverflow ? 0.45 : 1;
 
           if (isSelected) {
             bg     = 'linear-gradient(135deg, #3b82f6, #6366f1)';
             color  = '#ffffff';
             weight = '600';
             shadow = '0 2px 10px rgba(99,102,241,0.5)';
+            opacity = 1;
           } else if (isStartAwaiting) {
             bg     = 'linear-gradient(135deg, #3b82f6, #6366f1)';
             color  = '#ffffff';
             weight = '600';
             shadow = '0 0 0 3px rgba(99,102,241,0.25)';
-          } else if (isToday) {
+            opacity = 1;
+          } else if (isToday && !isOverflow) {
             bg     = '#eff6ff';
             color  = '#2563eb';
             border = '1.5px solid #3b82f6';
             weight = '700';
           } else if (isHov && !inRange) {
             bg = '#f3f4f6';
+            opacity = 1;
+          } else if (past && !isSelected && !isToday) {
+            opacity = 0.45;
           }
 
           const ariaLabel = [
@@ -295,7 +278,7 @@ export default function CalendarGrid({
 
           return (
             <div
-              key={`cur-${day}`}
+              key={`${cell.type}-${idx}`}
               role="gridcell"
               className="relative flex items-center justify-center"
               style={{ height: '40px' }}
@@ -321,8 +304,8 @@ export default function CalendarGrid({
                 role="button"
                 aria-label={ariaLabel}
                 aria-pressed={isSelected}
-                aria-current={isToday ? 'date' : undefined}
-                tabIndex={isFocused || (focusedIdx === null && isToday) ? 0 : -1}
+                aria-current={isToday && !isOverflow ? 'date' : undefined}
+                tabIndex={!isOverflow && (isFocused || (focusedIdx === null && isToday)) ? 0 : -1}
                 onClick={() => onDayClick(date)}
                 onMouseEnter={() => { onDayHover(date); setTooltipDay(holiday ? day : null); }}
                 onMouseLeave={() => { onDayHover(null); setTooltipDay(null); }}
@@ -334,7 +317,7 @@ export default function CalendarGrid({
                   borderRadius: '50%',
                   background: bg,
                   color,
-                  border: isFocused && !isSelected
+                  border: isFocused && !isSelected && !isOverflow
                     ? '2px solid #6366f1'
                     : border,
                   fontWeight: weight,
@@ -343,7 +326,7 @@ export default function CalendarGrid({
                   cursor: 'pointer',
                   transition: 'transform 0.12s ease, box-shadow 0.12s ease, background 0.12s ease',
                   transform: isHov && !isSelected ? 'scale(1.15)' : 'scale(1)',
-                  opacity: past && !isSelected && !isToday ? 0.45 : 1,
+                  opacity,
                 }}
               >
                 {day}
@@ -364,7 +347,7 @@ export default function CalendarGrid({
               )}
 
               {/* Today dot */}
-              {isToday && !isSelected && (
+              {isToday && !isSelected && !isOverflow && (
                 <div aria-hidden style={{
                   position: 'absolute', bottom: '3px', left: '50%',
                   transform: 'translateX(-50%)',

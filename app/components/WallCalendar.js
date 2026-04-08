@@ -113,8 +113,6 @@ export default function WallCalendar() {
         d.setMonth(d.getMonth() + (dir === 'next' ? 1 : -1));
         return d;
       });
-      setRangeStart(null);
-      setRangeEnd(null);
       setAnimKey(k => k + 1);
       setIsFlipping(false);
     }, 350);
@@ -183,7 +181,6 @@ export default function WallCalendar() {
             onNext={() => navigate('next')}
             onToday={() => {
               setCurrentDate(new Date(today.getFullYear(), today.getMonth(), 1));
-              setRangeStart(null); setRangeEnd(null);
             }}
           />
 
@@ -222,7 +219,7 @@ export default function WallCalendar() {
       </div>
 
       <p className="mt-5 text-xs tracking-widest uppercase" style={{ color: 'rgba(148,163,184,0.6)' }}>
-        Click to select · drag to range
+        Click start · click end · select across months
       </p>
     </div>
   );
