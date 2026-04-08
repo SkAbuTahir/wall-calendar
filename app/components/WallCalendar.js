@@ -99,6 +99,15 @@ export default function WallCalendar() {
     } catch {}
   }, []);
 
+  useEffect(() => {
+    try {
+      const s = localStorage.getItem('wall-calendar-range-start');
+      const e = localStorage.getItem('wall-calendar-range-end');
+      if (s) setRangeStart(new Date(s));
+      if (e) setRangeEnd(new Date(e));
+    } catch {}
+  }, []);
+
   const saveNotes = useCallback((updated) => {
     setNotes(updated);
     try { localStorage.setItem('wall-calendar-notes', JSON.stringify(updated)); } catch {}
@@ -121,9 +130,11 @@ export default function WallCalendar() {
   const handleDayClick = useCallback((date) => {
     if (!rangeStart || rangeEnd) {
       setRangeStart(date); setRangeEnd(null);
+      try { localStorage.setItem('wall-calendar-range-start', date.toISOString()); localStorage.removeItem('wall-calendar-range-end'); } catch {}
     } else {
-      if (date < rangeStart) { setRangeEnd(rangeStart); setRangeStart(date); }
-      else setRangeEnd(date);
+      const [start, end] = date < rangeStart ? [date, rangeStart] : [rangeStart, date];
+      setRangeStart(start); setRangeEnd(end);
+      try { localStorage.setItem('wall-calendar-range-start', start.toISOString()); localStorage.setItem('wall-calendar-range-end', end.toISOString()); } catch {}
     }
   }, [rangeStart, rangeEnd]);
 
@@ -193,7 +204,10 @@ export default function WallCalendar() {
               onSaveNotes={saveNotes}
               rangeStart={rangeStart}
               rangeEnd={rangeEnd}
-              onClearRange={() => { setRangeStart(null); setRangeEnd(null); }}
+              onClearRange={() => {
+                setRangeStart(null); setRangeEnd(null);
+                try { localStorage.removeItem('wall-calendar-range-start'); localStorage.removeItem('wall-calendar-range-end'); } catch {}
+              }}
             />
 
             <div className="hidden sm:block" style={{ width: '1px', background: 'linear-gradient(to bottom, transparent, #e5e7eb 20%, #e5e7eb 80%, transparent)' }} />
@@ -209,7 +223,10 @@ export default function WallCalendar() {
               getHoliday={getHoliday}
               onDayClick={handleDayClick}
               onDayHover={setHoveredDate}
-              onEscape={() => { setRangeStart(null); setRangeEnd(null); }}
+              onEscape={() => {
+                setRangeStart(null); setRangeEnd(null);
+                try { localStorage.removeItem('wall-calendar-range-start'); localStorage.removeItem('wall-calendar-range-end'); } catch {}
+              }}
             />
           </div>
 
