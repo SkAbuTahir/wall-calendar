@@ -18,6 +18,7 @@ const playfair = Playfair_Display({
 export const metadata = {
   title: 'Wall Calendar',
   description: 'Interactive wall calendar with date range selection and notes',
+  
 };
 
 export default function RootLayout({ children }) {
